@@ -1,0 +1,17 @@
+﻿{
+    "str": "omega",
+    "int": 16,
+    "dbl": 4.4,
+    "obj": {
+        "alpha": "omega",
+        "x": 16,
+        "z": 4.4
+    },
+    "arr": [
+        1,
+        2,
+        "wtf",
+        3
+    ],
+	"bool": true
+}
