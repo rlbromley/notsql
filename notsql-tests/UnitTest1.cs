@@ -30,6 +30,19 @@ namespace notsql_tests
         }
 
         [TestMethod]
+        public void BasicInsert()
+        {
+            string tp1 = System.IO.File.ReadAllText("json/object-simple.json");
+            var db = new notsql.Database(this.ConnectionString);
+            string result = db.Table("test").Insert(tp1);
+            var doc = Newtonsoft.Json.Linq.JObject.Parse(result);
+            Guid id = Guid.Parse(doc["_id"].ToString());
+            result = db.Table("test").Find("{ x : 16 }");
+            doc = Newtonsoft.Json.Linq.JObject.Parse(result);
+            Assert.AreEqual(id.ToString(), doc["_id"].ToString());
+        }
+        
+        [TestMethod]
         public void DataTypes()
         {
             string tp1 = System.IO.File.ReadAllText("json/datatypes.json");
@@ -37,7 +50,7 @@ namespace notsql_tests
             string result = db.Table("test").Insert(tp1);
             var doc = Newtonsoft.Json.Linq.JObject.Parse(result);
             Guid id = Guid.Parse(doc["_id"].ToString());
-            var oi = db.Table("test").Find("{ x : 16}");
+            var oi = db.Table("test").Find("{ x : 16 }");
         }
     }
 }

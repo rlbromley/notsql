@@ -46,14 +46,35 @@ namespace notsql
             return (process(json, this.fetch));
         }
 
+        private string queryBuilder(string key, Newtonsoft.Json.Linq.JToken token)
+        {
+            string result = "";
+            switch (token.Type)
+            {
+                case Newtonsoft.Json.Linq.JTokenType.Array:
+                    {
+                        foreach(var val in token) {
+                            result = string.Format("{0} AND {1}", result, queryBuilder(key, result));
+                        }
+                        break;
+                    }
+                case Newtonsoft.Json.Linq.JTokenType.String:
+                    {
+                        result = String.Format(" AND (([key] = '{0}') AND ([value] = '{1}'))", key, token.ToString());
+                        break;
+                    }
+            }
+            return (result);
+        }
+
         public string Find(string json)
         {
             var query = Newtonsoft.Json.Linq.JObject.Parse(json);
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("SELECT * FROM [docs] WHERE [tablename] = '{0}'", _name);
+            sb.AppendFormat("SELECT * FROM [docs] WHERE [tablename] = '{0}' ", _name);
             foreach (var entry in query)
             {
-                sb.AppendFormat(" AND (([key] = '{0}') AND ([value] = '{1}'))", entry.Key, entry.Value);
+                sb.Append(queryBuilder(entry.Key, entry.Value));
             }
 
             Newtonsoft.Json.Linq.JArray result = new Newtonsoft.Json.Linq.JArray();
@@ -100,7 +121,29 @@ namespace notsql
                         o.Add("_id", id);
                         foreach (var row in dinner.AsEnumerable())
                         {
-                            o.Add(row["key"].ToString(), Newtonsoft.Json.Linq.JToken.FromObject(row["value"]));
+                            switch (row["type"].ToString())
+                            {
+                                case "String":
+                                    {
+                                        o.Add(row["key"].ToString(), Newtonsoft.Json.Linq.JToken.FromObject(row["value"]));
+                                        break;
+                                    }
+                                case "Integer":
+                                    {
+                                        o.Add(row["key"].ToString(), Newtonsoft.Json.Linq.JToken.FromObject(Convert.ToInt32(row["value"])));
+                                        break;
+                                    }
+                                case "Float":
+                                    {
+                                        o.Add(row["key"].ToString(), Newtonsoft.Json.Linq.JToken.FromObject(Convert.ToDouble(row["value"])));
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        o.Add(row["key"].ToString(), Newtonsoft.Json.Linq.JToken.Parse(row["value"].ToString()));
+                                        break;
+                                    }
+                            }
                         }
                     }
                 }
