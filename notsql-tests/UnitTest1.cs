@@ -20,11 +20,18 @@ namespace notsql_tests
         {
             using (SqlConnection conn = new SqlConnection(this.ConnectionString))
             {
-                using (SqlCommand cmd = new SqlCommand("DELETE FROM docs", conn))
+                try
                 {
-                    conn.Open();
-                    cmd.ExecuteNonQuery();
+                    using (SqlCommand cmd = new SqlCommand("DELETE FROM docs", conn))
+                    {
+                        conn.Open();
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
                     conn.Close();
+                    throw (ex);
                 }
             }
         }
@@ -38,8 +45,9 @@ namespace notsql_tests
             var doc = Newtonsoft.Json.Linq.JObject.Parse(result);
             Guid id = Guid.Parse(doc["_id"].ToString());
             result = db.Table("test").Find("{ x : 16 }");
-            doc = Newtonsoft.Json.Linq.JObject.Parse(result);
-            Assert.AreEqual(id.ToString(), doc["_id"].ToString());
+            var find = Newtonsoft.Json.Linq.JArray.Parse(result);
+            var res = find[0];
+            Assert.AreEqual(id.ToString(), res["_id"].ToString());
         }
         
         [TestMethod]

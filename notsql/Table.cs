@@ -58,7 +58,7 @@ namespace notsql
                         }
                         break;
                     }
-                case Newtonsoft.Json.Linq.JTokenType.String:
+                default:
                     {
                         result = String.Format(" AND (([key] = '{0}') AND ([value] = '{1}'))", key, token.ToString());
                         break;
