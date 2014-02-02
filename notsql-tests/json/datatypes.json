@@ -7,11 +7,25 @@
         "x": 16,
         "z": 4.4
     },
+    "nested": {
+        "beta": "kappa",
+        "a": 33,
+        "b": 8.7,
+        "kiddo": {
+            "alpha": "omega",
+            "q": 91,
+            "r": 7.2
+        }
+    },
     "arr": [
         1,
         2,
         "wtf",
-        3
+        3,
+		{
+			"phi": "tau",
+			"q" : 0.7
+		}
     ],
-	"bool": true
+    "bool": true
 }

@@ -26,26 +26,6 @@ namespace notsql
             _name = table;
         }
 
-        public string Delete(string json)
-        {
-            return (process(json, this.delete));
-        }
-
-        public string Insert(string json)
-        {
-            return (process(json, this.save));
-        }
-
-        public string Update(string json)
-        {
-            return (process(json, this.update));
-        }
-
-        public string Get(string json)
-        {
-            return (process(json, this.fetch));
-        }
-
         private string queryBuilder(string key, Newtonsoft.Json.Linq.JToken token)
         {
             string result = "";
@@ -101,15 +81,10 @@ namespace notsql
             return (result.ToString());
         }
 
-        private Newtonsoft.Json.Linq.JObject fetch(Newtonsoft.Json.Linq.JObject doc)
-        {
-            return (this.fetch(doc["_id"].ToString()));
-        }
-
-        private Newtonsoft.Json.Linq.JObject fetch(string id)
+        public Newtonsoft.Json.Linq.JObject fetch(Newtonsoft.Json.Linq.JObject doc)
         {
             Newtonsoft.Json.Linq.JObject o = new Newtonsoft.Json.Linq.JObject();
-            var q = String.Format("SELECT * FROM [docs] WHERE [tablename] = '{0}' AND _id = '{1}' ORDER BY [key]", _name, id);
+            var q = String.Format("SELECT * FROM [docs] WHERE [tablename] = '{0}' AND _id = '{1}' ORDER BY [key]", _name, doc["_id"]);
             using (SqlConnection conn = new SqlConnection(_d.cs))
             {
                 using (SqlCommand cinner = new SqlCommand(q, conn))
@@ -151,7 +126,7 @@ namespace notsql
             return (o);
         }
 
-        private Newtonsoft.Json.Linq.JObject update(Newtonsoft.Json.Linq.JObject doc)
+        public Newtonsoft.Json.Linq.JObject update(Newtonsoft.Json.Linq.JObject doc)
         {
             string _id = doc["_id"].ToString();
             string sql = String.Format("DELETE FROM [docs] WHERE [_id] = '{0}'\r\n{1}", _id, BuildSaveSQL(doc, _id));
@@ -166,7 +141,7 @@ namespace notsql
             return (doc);
         }
 
-        private Newtonsoft.Json.Linq.JObject delete(Newtonsoft.Json.Linq.JObject doc)
+        public Newtonsoft.Json.Linq.JObject delete(Newtonsoft.Json.Linq.JObject doc)
         {
             string _id = doc["_id"].ToString();
             string sql = String.Format("DELETE FROM [docs] WHERE [_id] = '{0}'", _id);
@@ -181,7 +156,7 @@ namespace notsql
             return (doc);
         }
 
-        private Newtonsoft.Json.Linq.JObject save(Newtonsoft.Json.Linq.JObject doc)
+        public Newtonsoft.Json.Linq.JObject save(Newtonsoft.Json.Linq.JObject doc)
         {
             Guid _id = Guid.NewGuid();
             using (SqlConnection conn = new SqlConnection(_d.cs))
@@ -215,17 +190,34 @@ namespace notsql
             }
         }
 
-        private string BuildSaveSQL(Newtonsoft.Json.Linq.JObject doc, string id)
+        private List<Tuple<string, string>> parsedoc(Newtonsoft.Json.Linq.JObject doc)
         {
-            StringBuilder sb = new StringBuilder();
-            foreach (var entry in doc)
+            var inserts = new List<Tuple<string, string>>();
+            foreach (var p in doc)
             {
-                if (entry.Key != "_id")
+                switch (p.Value.Type)
                 {
-                    sb.AppendFormat("INSERT INTO [docs] ([_id], [tablename], [key], [value], [type]) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')", id, _name, entry.Key, entry.Value, entry.Value.Type);
+                    case Newtonsoft.Json.Linq.JTokenType.Array:
+                        {
+                            foreach (var x in (p.Value as Newtonsoft.Json.Linq.JArray))
+                            {
+                                inserts.Add(new Tuple<string, string>(p.Key, p.Value.ToString()));
+                            }
+                            break;
+                        }
+                    case Newtonsoft.Json.Linq.JTokenType.Object:
+                        {
+                            inserts.AddRange(parsedoc(p.Value as Newtonsoft.Json.Linq.JObject));
+                            break;
+                        }
+                    default:
+                        {
+                            inserts.Add(new Tuple<string, string>(p.Key, p.Value.ToString()));
+                            break;
+                        }
                 }
             }
-            return (sb.ToString());
+            return (inserts);
         }
     }
 }
