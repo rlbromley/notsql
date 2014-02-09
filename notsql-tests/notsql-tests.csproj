@@ -69,9 +69,6 @@
     <Content Include="json\object-simple.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="TestDatabase.mdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="json\datatypes.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

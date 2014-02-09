@@ -2,6 +2,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data.SqlClient;
 using System.Collections.Generic;
+using notsql;
+using Newtonsoft.Json.Linq;
 
 namespace notsql_tests
 {
@@ -12,11 +14,12 @@ namespace notsql_tests
         {
             get
             {
-                return (string.Format("Data Source=(LocalDB)\\v11.0;AttachDbFilename=\"{0}\\TestDatabase.mdf\";Integrated Security=True;Connect Timeout=30", Environment.CurrentDirectory));
+                // return (string.Format("Data Source=(LocalDB)\\v11.0;AttachDbFilename=\"{0}\\TestDatabase.mdf\";Integrated Security=True;Connect Timeout=30", Environment.CurrentDirectory));
+                return ("Data Source=(LocalDB)\\v11.0;AttachDbFilename=\"C:\\Users\\Robb\\Documents\\Visual Studio 2012\\Projects\\notsql\\notsql-tests\\TestDatabase.mdf\";Integrated Security=True;Connect Timeout=30");
             }
         }
 
-        // [TestInitialize]
+        [TestInitialize]
         public void init()
         {
             using (SqlConnection conn = new SqlConnection(this.ConnectionString))
@@ -26,6 +29,8 @@ namespace notsql_tests
                     using (SqlCommand cmd = new SqlCommand("DELETE FROM docs", conn))
                     {
                         conn.Open();
+                        cmd.ExecuteNonQuery();
+                        cmd.CommandText = "DELETE FROM keys";
                         cmd.ExecuteNonQuery();
                     }
                 }
@@ -37,67 +42,64 @@ namespace notsql_tests
             }
         }
 
-        [TestMethod]
-        public void BasicInsert()
+        [TestCleanup]
+        public void cleanup()
         {
-            string tp1 = System.IO.File.ReadAllText("json/object-simple.json");
-            var db = new notsql.Database(this.ConnectionString);
-            string result = db.Table("test").Insert(tp1);
-            var doc = Newtonsoft.Json.Linq.JObject.Parse(result);
-            Guid id = Guid.Parse(doc["_id"].ToString());
-            result = db.Table("test").Find("{ x : 16 }");
-            var find = Newtonsoft.Json.Linq.JArray.Parse(result);
-            var res = find[0];
-            Assert.AreEqual(id.ToString(), res["_id"].ToString());
-        }
-        
-        [TestMethod]
-        public void DataTypes()
-        {
-            string tp1 = System.IO.File.ReadAllText("json/datatypes.json");
-            var db = new notsql.Database(this.ConnectionString);
-            string result = db.Table("test").Insert(tp1);
-            var doc = Newtonsoft.Json.Linq.JObject.Parse(result);
-            Guid id = Guid.Parse(doc["_id"].ToString());
-            var oi = db.Table("test").Find("{ x : 16 }");
+            // init();
         }
 
         [TestMethod]
-        public void adsf()
+        public void write()
         {
-            string tp1 = System.IO.File.ReadAllText("json/datatypes.json");
-            var doc = Newtonsoft.Json.Linq.JObject.Parse(tp1);
-            var r = parsedoc(doc);
+            var tp1 = new JObject();
+            tp1["a"] = Guid.NewGuid();
+            tp1["b"] = Guid.NewGuid();
+            tp1["c"] = Guid.NewGuid();
+            var db = new notsql.Database(this.ConnectionString);
+            var result = db.Table("test").write(tp1);
+            var id = Guid.Parse(result["_id"].ToString());
+            var revid = Guid.Parse(result["_rev"].ToString());
         }
 
-        private List<Tuple<string, string>> parsedoc(Newtonsoft.Json.Linq.JObject doc)
+        [TestMethod]
+        public void _rev_changes()
         {
-            var inserts = new List<Tuple<string, string>>();
-            foreach (var p in doc)
+            var tp1 = new JObject();
+            tp1["a"] = Guid.NewGuid();
+            tp1["b"] = Guid.NewGuid();
+            tp1["c"] = Guid.NewGuid();
+            var db = new notsql.Database(this.ConnectionString);
+            var result = db.Table("test").write(tp1);
+            var id = Guid.Parse(result["_id"].ToString());
+            var revid = Guid.Parse(result["_rev"].ToString());
+            var q = new JObject();
+            q["_id"] = id;
+            var repeat = db.Table("test").read(q);
+            var r2 = db.Table("test").read(q);
+            var r3 = db.Table("test").read(q);
+            Assert.AreNotEqual(result["_rev"].ToString(), r3["_rev"].ToString());
+        }
+
+        [TestMethod]
+        public void find()
+        {
+            var tp1 = new JObject();
+            tp1["a"] = Guid.NewGuid();
+            tp1["b"] = Guid.NewGuid();
+            tp1["c"] = Guid.NewGuid();
+            var db = new notsql.Database(this.ConnectionString);
+            var result = db.Table("test").write(tp1);
+            var id = Guid.Parse(result["_id"].ToString());
+            var revid = Guid.Parse(result["_rev"].ToString());
+            for (int x = 0; x < 10; x++)
             {
-                switch (p.Value.Type)
-                {
-                    case Newtonsoft.Json.Linq.JTokenType.Array:
-                        {
-                            foreach (var x in (p.Value as Newtonsoft.Json.Linq.JArray))
-                            {
-                                inserts.Add(new Tuple<string, string>(p.Key, p.Value.ToString()));
-                            }
-                            break;
-                        }
-                    case Newtonsoft.Json.Linq.JTokenType.Object:
-                        {
-                            inserts.AddRange(parsedoc(p.Value as Newtonsoft.Json.Linq.JObject));
-                            break;
-                        }
-                    default:
-                        {
-                            inserts.Add(new Tuple<string, string>(p.Key, p.Value.ToString()));
-                            break;
-                        }
-                }
+                write();
             }
-            return (inserts);
+            var q = new JObject();
+            var t = new JObject();
+            t["$eq"] = tp1["b"];
+            q["b"] = t;
+            var r = db.Table("test").find(q);
         }
     }
 }

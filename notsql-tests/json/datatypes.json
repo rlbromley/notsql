@@ -14,7 +14,18 @@
         "kiddo": {
             "alpha": "omega",
             "q": 91,
-            "r": 7.2
+            "r": 7.2,
+            "deeparray": [
+                3,
+                1,
+                4,
+                1,
+                5,
+                {
+                    "pi": "transcendental",
+                    "tau": "2*pi"
+                }
+            ]
         }
     },
     "arr": [
@@ -22,10 +33,10 @@
         2,
         "wtf",
         3,
-		{
-			"phi": "tau",
-			"q" : 0.7
-		}
+        {
+            "phi": "tau",
+            "q": 0.7
+        }
     ],
     "bool": true
 }
