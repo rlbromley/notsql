@@ -83,17 +83,22 @@ namespace notsql
                 }
                 var parsed = doc.ToTuple();
                 // write parsed out key/vals
-                parsed.Each(t =>
+
+                using (SqlConnection clocal = new SqlConnection(_d.cs))
                 {
-                    using (SqlCommand c = new SqlCommand("INSERT INTO [keys] ([tablename], [_docid], [key], [val]) VALUES (@t, @d, @k, @v)", conn))
+                    clocal.Open();
+                    parsed.Each(t =>
                     {
-                        c.Parameters.Add(new SqlParameter("t", _name));
-                        c.Parameters.Add(new SqlParameter("d", _id.ToString()));
-                        c.Parameters.Add(new SqlParameter("k", t.Item1));
-                        c.Parameters.Add(new SqlParameter("v", t.Item2));
-                        c.ExecuteNonQuery();
-                    }
-                });
+                        using (SqlCommand c = new SqlCommand("INSERT INTO [keys] ([tablename], [_docid], [key], [val]) VALUES (@t, @d, @k, @v)", clocal))
+                        {
+                            c.Parameters.Add(new SqlParameter("t", _name));
+                            c.Parameters.Add(new SqlParameter("d", _id.ToString()));
+                            c.Parameters.Add(new SqlParameter("k", t.Item1));
+                            c.Parameters.Add(new SqlParameter("v", t.Item2));
+                            c.ExecuteNonQuery();
+                        }
+                    });
+                }
             }
             doc["_id"] = _id;
             doc["_rev"] = _rev;

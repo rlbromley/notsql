@@ -15,7 +15,7 @@ namespace notsql_tests
             get
             {
                 // return (string.Format("Data Source=(LocalDB)\\v11.0;AttachDbFilename=\"{0}\\TestDatabase.mdf\";Integrated Security=True;Connect Timeout=30", Environment.CurrentDirectory));
-                return ("Data Source=(LocalDB)\\v11.0;AttachDbFilename=\"C:\\Users\\Robb\\Documents\\Visual Studio 2012\\Projects\\notsql\\notsql-tests\\TestDatabase.mdf\";Integrated Security=True;Connect Timeout=30");
+                return ("Data Source=APP01\\SQL2008R2;Database=HIPAARiskAssessment;Integrated Security=True;Connect Timeout=30");
             }
         }
 
@@ -100,6 +100,22 @@ namespace notsql_tests
             t["$eq"] = tp1["b"];
             q["b"] = t;
             var r = db.Table("test").find(q);
+        }
+
+        [TestMethod]
+        public void speedTests()
+        {
+            List<JObject> docs = new List<JObject>();
+            for (int x = 0; x < 1000; x++)
+            {
+                var tp1 = new JObject();
+                tp1["a"] = Guid.NewGuid();
+                tp1["b"] = Guid.NewGuid();
+                tp1["c"] = Guid.NewGuid();
+                docs.Add(tp1);
+            }
+            var db = new notsql.Database(this.ConnectionString);
+            docs.Each(x => db.Table("test").write(x));
         }
     }
 }
