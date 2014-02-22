@@ -1,6 +1,7 @@
 ﻿CREATE TABLE [dbo].[docs] (
     [_id]       UNIQUEIDENTIFIER NOT NULL,
     [_rev]      UNIQUEIDENTIFIER NOT NULL,
+	[_dirty]	BIT				 NOT NULL,
     [tablename] NVARCHAR (100)   NOT NULL,
     [doc]       NVARCHAR (MAX)   NOT NULL
 );
@@ -25,6 +26,7 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
+	BEGIN TRAN
 	DECLARE @exists uniqueidentifier
 	SELECT @exists = [_rev] FROM [docs] WHERE [_id] = @id
 	IF (@exists = @rev)
@@ -36,8 +38,9 @@ BEGIN
 			BEGIN
 				RAISERROR (N'Revision ID mismatch', 10, 1)
 			END
-	INSERT INTO [docs] ([_id], [_rev], [tablename], [doc]) VALUES (@id, @rev, @tablename, @doc)
+	INSERT INTO [docs] ([_id], [_rev], [_dirty], [tablename], [doc]) VALUES (@id, @rev, 0, @tablename, @doc)
 	DELETE FROM [keys] WHERE [_docid] = @id
+	COMMIT TRAN
 END
 GO
 

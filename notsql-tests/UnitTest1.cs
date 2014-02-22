@@ -15,7 +15,7 @@ namespace notsql_tests
             get
             {
                 // return (string.Format("Data Source=(LocalDB)\\v11.0;AttachDbFilename=\"{0}\\TestDatabase.mdf\";Integrated Security=True;Connect Timeout=30", Environment.CurrentDirectory));
-                return ("Data Source=APP01\\SQL2008R2;Database=HIPAARiskAssessment;Integrated Security=True;Connect Timeout=30");
+                return ("Data Source=172.16.10.1\\SQLEXPRESS;Database=notsql;user=sa;password=tvt7215;Connect Timeout=30");
             }
         }
 

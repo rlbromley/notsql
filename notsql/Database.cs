@@ -8,18 +8,27 @@ namespace notsql
 {
     public class Database
     {
-        private string _cs;
-        public string cs
+        public enum IndexModes
         {
-            get
-            {
-                return (_cs);
-            }
+            Inline,
+            Async,
+            External
         }
+
+        private string _cs;
+        public string cs { get { return (_cs); } }
+
+        private IndexModes _im = IndexModes.Inline;
+        public IndexModes im { get { return (_im); } }
 
         public Database(string connectionString)
         {
             _cs = connectionString;
+        }
+
+        public Database(string connectionString, IndexModes mode) : this(connectionString)
+        {
+            _im = mode;
         }
 
         public Table Table(string name)
