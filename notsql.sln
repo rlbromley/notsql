@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "notsql", "notsql\notsql.csproj", "{12CBA12F-FAAA-466F-8B86-8AAE4FE4035E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "notsql-tests", "notsql-tests\notsql-tests.csproj", "{08D2011E-5AD1-4BB6-BA95-F8DD3757B21D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "notsql-mvcdemo", "notsql-mvcdemo\notsql-mvcdemo.csproj", "{A3AAE06F-32C8-482E-9B81-61BC57294CA9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,10 +21,6 @@ Global
 		{08D2011E-5AD1-4BB6-BA95-F8DD3757B21D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08D2011E-5AD1-4BB6-BA95-F8DD3757B21D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08D2011E-5AD1-4BB6-BA95-F8DD3757B21D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A3AAE06F-32C8-482E-9B81-61BC57294CA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A3AAE06F-32C8-482E-9B81-61BC57294CA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A3AAE06F-32C8-482E-9B81-61BC57294CA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A3AAE06F-32C8-482E-9B81-61BC57294CA9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
