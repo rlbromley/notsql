@@ -27,6 +27,11 @@ namespace notsql
             _name = table;
         }
 
+        public JObject write(string doc)
+        {
+            return(write(JObject.Parse(doc)));
+        }
+
         public JObject write(JObject doc)
         {
             Guid _id = Guid.NewGuid();
@@ -91,11 +96,6 @@ namespace notsql
             }
         }
 
-        public JObject read(JObject doc)
-        {
-            return (read(doc["_id"].ToString()));
-        }
-
         public JObject[] find(JObject query)
         {
             var parms = query.ToTuple();
@@ -153,7 +153,12 @@ namespace notsql
             return (result.ToArray());
         }
 
-        private JObject read(string id)
+        public JObject read(JObject doc)
+        {
+            return (read(doc["_id"].ToString()));
+        }
+
+        public JObject read(string id)
         {
             JObject result = null;
             using (SqlConnection conn = new SqlConnection(_d.cs))
