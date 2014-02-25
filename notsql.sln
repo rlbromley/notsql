@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "notsql", "notsql\notsql.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "notsql-tests", "notsql-tests\notsql-tests.csproj", "{08D2011E-5AD1-4BB6-BA95-F8DD3757B21D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "notsql-restdemo", "notsql-restdemo\notsql-restdemo.csproj", "{DF58E55F-E706-47DD-B2BE-12B7875C4E47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{08D2011E-5AD1-4BB6-BA95-F8DD3757B21D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08D2011E-5AD1-4BB6-BA95-F8DD3757B21D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08D2011E-5AD1-4BB6-BA95-F8DD3757B21D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF58E55F-E706-47DD-B2BE-12B7875C4E47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF58E55F-E706-47DD-B2BE-12B7875C4E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF58E55F-E706-47DD-B2BE-12B7875C4E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF58E55F-E706-47DD-B2BE-12B7875C4E47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

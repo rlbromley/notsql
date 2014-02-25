@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Collections.Generic;
 using notsql;
 using Newtonsoft.Json.Linq;
+using System.Text;
 
 namespace notsql_tests
 {

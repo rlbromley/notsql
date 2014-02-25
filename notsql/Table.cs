@@ -82,17 +82,34 @@ namespace notsql
             using (SqlConnection clocal = new SqlConnection(_d.cs))
             {
                 clocal.Open();
-                parsed.Each(t =>
+                using (var tran = clocal.BeginTransaction())
                 {
-                    using (SqlCommand c = new SqlCommand("INSERT INTO [keys] ([tablename], [_docid], [key], [val]) VALUES (@t, @d, @k, @v)", clocal))
+                    bool indexed = false;
+                    try
                     {
-                        c.Parameters.Add(new SqlParameter("t", _name));
-                        c.Parameters.Add(new SqlParameter("d", _id));
-                        c.Parameters.Add(new SqlParameter("k", t.Item1));
-                        c.Parameters.Add(new SqlParameter("v", t.Item2));
-                        c.ExecuteNonQuery();
+                        parsed.Each(t =>
+                        {
+                            using (SqlCommand c = new SqlCommand("INSERT INTO [keys] ([tablename], [_docid], [key], [val]) VALUES (@t, @d, @k, @v)", clocal))
+                            {
+                                c.Parameters.Add(new SqlParameter("t", _name));
+                                c.Parameters.Add(new SqlParameter("d", _id));
+                                c.Parameters.Add(new SqlParameter("k", t.Item1));
+                                c.Parameters.Add(new SqlParameter("v", t.Item2));
+                                c.ExecuteNonQuery();
+                            }
+                        });
+                        using (SqlCommand cf = new SqlCommand("UPDATE [docs] SET _dirty = 1 where [_id] = @d", clocal))
+                        {
+                            cf.Parameters.Add(new SqlParameter("d", _id));
+                            cf.ExecuteNonQuery();
+                        }
+                        indexed = true;
                     }
-                });
+                    catch
+                    {
+                    }
+                    if (indexed) { tran.Commit(); } else { tran.Rollback(); throw new Exception("indexing failed"); }
+                }
             }
         }
 
@@ -151,6 +168,11 @@ namespace notsql
                 }
             }
             return (result.ToArray());
+        }
+
+        public JObject[] find(string doc)
+        {
+            return (find(JObject.Parse(doc)));
         }
 
         public JObject read(JObject doc)
