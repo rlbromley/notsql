@@ -16,7 +16,7 @@ namespace notsql_tests
             get
             {
                 // return (string.Format("Data Source=(LocalDB)\\v11.0;AttachDbFilename=\"{0}\\TestDatabase.mdf\";Integrated Security=True;Connect Timeout=30", Environment.CurrentDirectory));
-                return ("Data Source=172.16.10.1\\SQLEXPRESS;Database=notsql;user=sa;password=tvt7215;Connect Timeout=30");
+                return ("Data Source=.\\SQL2012EXPRESS;Database=notsql;Integrated Security=True;Connect Timeout=30");
             }
         }
 
@@ -58,6 +58,30 @@ namespace notsql_tests
             tp1["c"] = Guid.NewGuid();
             var db = new notsql.Database(this.ConnectionString);
             var result = db.Table("test").write(tp1);
+            var id = Guid.Parse(result["_id"].ToString());
+            var revid = Guid.Parse(result["_rev"].ToString());
+        }
+
+        [TestMethod]
+        public void demo()
+        {
+            var tp1 = new JObject();
+            tp1["Source"] = "ASA Charity";
+            tp1["Charity"] = "Charity A";
+            tp1["Donation"] = 350;
+            tp1["Memoriam"] = "";
+            tp1["DonatedAt"] = DateTime.Now.ToString();
+
+            var tp2 = new JObject();
+            tp2["Source"] = "ASA Charity";
+            tp2["Charity"] = "Charity B";
+            tp2["Donation"] = 5.50;
+            tp2["Memoriam"] = "";
+            tp2["DonatedAt"] = DateTime.Now.AddMinutes(9342).ToString(); 
+            
+            var db = new notsql.Database(this.ConnectionString);
+            var result = db.Table("test").write(tp1);
+            db.Table("test").write(tp2);
             var id = Guid.Parse(result["_id"].ToString());
             var revid = Guid.Parse(result["_rev"].ToString());
         }

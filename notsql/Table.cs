@@ -40,6 +40,10 @@ namespace notsql
             {
                 _id = Guid.Parse(doc["_id"].ToString());
             }
+            else
+            {
+                doc["_id"] = _id;
+            }
             if (doc["_rev"] != null)
             {
                 _rev = Guid.Parse(doc["_rev"].ToString());
@@ -77,8 +81,8 @@ namespace notsql
 
         private void indexer(JObject doc)
         {
-            var parsed = doc.ToTuple();
             string _id = doc["_id"].ToString();
+            var parsed = doc.ToTuple();
             using (SqlConnection clocal = new SqlConnection(_d.cs))
             {
                 clocal.Open();
@@ -89,17 +93,22 @@ namespace notsql
                     {
                         parsed.Each(t =>
                         {
-                            using (SqlCommand c = new SqlCommand("INSERT INTO [keys] ([tablename], [_docid], [key], [val]) VALUES (@t, @d, @k, @v)", clocal))
+                            if (t.Item1 != "_id")
                             {
-                                c.Parameters.Add(new SqlParameter("t", _name));
-                                c.Parameters.Add(new SqlParameter("d", _id));
-                                c.Parameters.Add(new SqlParameter("k", t.Item1));
-                                c.Parameters.Add(new SqlParameter("v", t.Item2));
-                                c.ExecuteNonQuery();
+                                using (SqlCommand c = new SqlCommand("INSERT INTO [keys] ([tablename], [_docid], [key], [val]) VALUES (@t, @d, @k, @v)", clocal))
+                                {
+                                    c.Transaction = tran;
+                                    c.Parameters.Add(new SqlParameter("t", _name));
+                                    c.Parameters.Add(new SqlParameter("d", _id));
+                                    c.Parameters.Add(new SqlParameter("k", t.Item1));
+                                    c.Parameters.Add(new SqlParameter("v", t.Item2));
+                                    c.ExecuteNonQuery();
+                                }
                             }
                         });
                         using (SqlCommand cf = new SqlCommand("UPDATE [docs] SET _dirty = 1 where [_id] = @d", clocal))
                         {
+                            cf.Transaction = tran;
                             cf.Parameters.Add(new SqlParameter("d", _id));
                             cf.ExecuteNonQuery();
                         }
